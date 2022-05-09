@@ -1,0 +1,345 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Transform: AWS::Serverless-2016-10-31
+Description: >
+  ClaimProcess
+
+  Sample SAM Template for ClaimProcess
+
+# More info about Globals: https://github.com/awslabs/serverless-application-model/blob/master/docs/globals.rst
+Globals:
+  Function:
+    Timeout: 20
+    Environment:
+      Variables:
+        DB_SM_NAME: arn:aws:secretsmanager:us-east-1:814719539168:secret:RDS-pi-workbench-WutrRL
+        AWS_SM_REGION: us-east-1
+
+Resources:
+  DevClaimAcceptFunction:
+    Type: AWS::Serverless::Function # More info about Function Resource: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlessfunction
+    Properties:
+      CodeUri: ClaimProcessFunction
+      Handler: com.aarete.pi.claimprocess.lambdafunctions.ClaimProcess::claimProcessRequest
+      Role: arn:aws:iam::814719539168:role/aws-a001-use1-00-rol-lamb-shr-wadec01
+      Runtime: java11
+      Architectures:
+        - x86_64
+      MemorySize: 512
+      VpcConfig:
+        SecurityGroupIds:
+          - sg-0f62f40d605c44367
+          - sg-022dcdbde83db8264
+        SubnetIds:
+          - subnet-04d16e9246f32bb1b
+          - subnet-0996c195b132b2343
+          - subnet-084124cc7bf355ba5
+      Environment: # More info about Env Vars: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#environment-object
+        Variables:
+          DB_USER_NAME: postgres
+          DB_PWD: Master123$
+          DB_END_POINT: pi-workbench.cufrohekrz0g.us-east-1.rds.amazonaws.com:5432/postgres
+          DB_PORT: 5432
+          DB_NAME: postgres
+      Events:
+        Claim:
+          Type: Api # More info about API Event Source: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#api
+          Properties:
+            Path: /claim/accept
+            Method: post
+
+  DevClaimLineAcceptFunction:
+    Type: AWS::Serverless::Function # More info about Function Resource: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlessfunction
+    Properties:
+      CodeUri: ClaimProcessFunction
+      Handler: com.aarete.pi.claimprocess.lambdafunctions.ClaimLineProcess::claimLineProcessRequest
+      Role: arn:aws:iam::814719539168:role/aws-a001-use1-00-rol-lamb-shr-wadec01
+      Runtime: java11
+      Architectures:
+        - x86_64
+      MemorySize: 512
+      VpcConfig:
+        SecurityGroupIds:
+          - sg-0f62f40d605c44367
+          - sg-022dcdbde83db8264
+        SubnetIds:
+          - subnet-04d16e9246f32bb1b
+          - subnet-0996c195b132b2343
+          - subnet-084124cc7bf355ba5
+      Environment: # More info about Env Vars: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#environment-object
+        Variables:
+          DB_USER_NAME: postgres
+          DB_PWD: Master123$
+          DB_END_POINT: pi-workbench.cufrohekrz0g.us-east-1.rds.amazonaws.com:5432/postgres
+          DB_PORT: 5432
+          DB_NAME: postgres
+      Events:
+        ClaimLine:
+          Type: Api # More info about API Event Source: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#api
+          Properties:
+            Path: /claimline/accept
+            Method: post
+
+  DevClaimAcceptResponse:
+    Type: AWS::Serverless::Function # More info about Function Resource: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlessfunction
+    Properties:
+      CodeUri: ClaimProcessFunction
+      Handler: com.aarete.pi.claimprocess.lambdafunctions.ClaimAcceptResponse::handleRequest
+      Role: arn:aws:iam::814719539168:role/aws-a001-use1-00-rol-lamb-shr-wadec01
+      Runtime: java11
+      Architectures:
+        - x86_64
+      MemorySize: 512
+      VpcConfig:
+        SecurityGroupIds:
+          - sg-0f62f40d605c44367
+          - sg-022dcdbde83db8264
+        SubnetIds:
+          - subnet-04d16e9246f32bb1b
+          - subnet-0996c195b132b2343
+          - subnet-084124cc7bf355ba5
+      Events:
+        ClaimAcceptSQSResponse:
+          Type: SQS # More info about API Event Source: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#api
+          Properties:
+            Queue: arn:aws:sqs:us-east-1:814719539168:Dec-WA-Accept-claim_recovery
+            BatchSize: 10
+            Enabled: true
+
+
+  DevClaimRejectResponse:
+    Type: AWS::Serverless::Function # More info about Function Resource: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlessfunction
+    Properties:
+      CodeUri: ClaimProcessFunction
+      Handler: com.aarete.pi.claimprocess.lambdafunctions.ClaimRejectResponse::handleRequest
+      Role: arn:aws:iam::814719539168:role/aws-a001-use1-00-rol-lamb-shr-wadec01
+      Runtime: java11
+      Architectures:
+        - x86_64
+      MemorySize: 512
+      VpcConfig:
+        SecurityGroupIds:
+          - sg-0f62f40d605c44367
+          - sg-022dcdbde83db8264
+        SubnetIds:
+          - subnet-04d16e9246f32bb1b
+          - subnet-0996c195b132b2343
+          - subnet-084124cc7bf355ba5
+      Environment: # More info about Env Vars: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#environment-object
+        Variables:
+          DB_USER_NAME: postgres
+          DB_PWD: Master123$
+          DB_END_POINT: pi-workbench.cufrohekrz0g.us-east-1.rds.amazonaws.com:5432/postgres
+          DB_PORT: 5432
+          DB_NAME: postgres
+      Events:
+        ClaimRejectSQSResponse:
+          Type: SQS # More info about API Event Source: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#api
+          Properties:
+            Queue: arn:aws:sqs:us-east-1:814719539168:Dec-WA-Reject-claim_recovery
+            BatchSize: 10
+            Enabled: true
+
+  DevClaimRejectFunction:
+    Type: AWS::Serverless::Function # More info about Function Resource: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlessfunction
+    Properties:
+      CodeUri: ClaimProcessFunction
+      Handler: com.aarete.pi.claimprocess.lambdafunctions.ClaimRejectProcess::claimRejectProcessRequest
+      Role: arn:aws:iam::814719539168:role/aws-a001-use1-00-rol-lamb-shr-wadec01
+      Runtime: java11
+      Architectures:
+        - x86_64
+      MemorySize: 512
+      VpcConfig:
+        SecurityGroupIds:
+          - sg-0f62f40d605c44367
+          - sg-022dcdbde83db8264
+        SubnetIds:
+          - subnet-04d16e9246f32bb1b
+          - subnet-0996c195b132b2343
+          - subnet-084124cc7bf355ba5
+      Environment: # More info about Env Vars: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#environment-object
+        Variables:
+          DB_USER_NAME: postgres
+          DB_PWD: Master123$
+          DB_END_POINT: pi-workbench.cufrohekrz0g.us-east-1.rds.amazonaws.com:5432/postgres
+          DB_PORT: 5432
+          DB_NAME: postgres
+      Events:
+        Claim:
+          Type: Api # More info about API Event Source: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#api
+          Properties:
+            Path: /claim/reject
+            Method: post
+
+  DevClaimLineRejectFunction:
+    Type: AWS::Serverless::Function # More info about Function Resource: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlessfunction
+    Properties:
+      CodeUri: ClaimProcessFunction
+      Handler: com.aarete.pi.claimprocess.lambdafunctions.ClaimLineRejectProcess::claimLineRejectProcessRequest
+      Role: arn:aws:iam::814719539168:role/aws-a001-use1-00-rol-lamb-shr-wadec01
+      Runtime: java11
+      Architectures:
+        - x86_64
+      MemorySize: 512
+      VpcConfig:
+        SecurityGroupIds:
+          - sg-0f62f40d605c44367
+          - sg-022dcdbde83db8264
+        SubnetIds:
+          - subnet-04d16e9246f32bb1b
+          - subnet-0996c195b132b2343
+          - subnet-084124cc7bf355ba5
+      Environment: # More info about Env Vars: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#environment-object
+        Variables:
+          DB_USER_NAME: postgres
+          DB_PWD: Master123$
+          DB_END_POINT: pi-workbench.cufrohekrz0g.us-east-1.rds.amazonaws.com:5432/postgres
+          DB_PORT: 5432
+          DB_NAME: postgres
+      Events:
+        ClaimLine:
+          Type: Api # More info about API Event Source: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#api
+          Properties:
+            Path: /claimline/reject
+            Method: post
+
+  DevClaimLineOverrideFunction:
+    Type: AWS::Serverless::Function # More info about Function Resource: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlessfunction
+    Properties:
+      CodeUri: ClaimProcessFunction
+      Handler: com.aarete.pi.claimprocess.lambdafunctions.ClaimLineOverrideProcess::claimLineOverrideProcessRequest
+      Role: arn:aws:iam::814719539168:role/aws-a001-use1-00-rol-lamb-shr-wadec01
+      Runtime: java11
+      Architectures:
+        - x86_64
+      MemorySize: 512
+      VpcConfig:
+        SecurityGroupIds:
+          - sg-0f62f40d605c44367
+          - sg-022dcdbde83db8264
+        SubnetIds:
+          - subnet-04d16e9246f32bb1b
+          - subnet-0996c195b132b2343
+          - subnet-084124cc7bf355ba5
+      Environment: # More info about Env Vars: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#environment-object
+        Variables:
+          DB_USER_NAME: postgres
+          DB_PWD: Master123$
+          DB_END_POINT: pi-workbench.cufrohekrz0g.us-east-1.rds.amazonaws.com:5432/postgres
+          DB_PORT: 5432
+          DB_NAME: postgres
+      Events:
+        ClaimLine:
+          Type: Api # More info about API Event Source: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#api
+          Properties:
+            Path: /claimline/override
+            Method: post
+
+  DevClaimOverrideFunction:
+    Type: AWS::Serverless::Function # More info about Function Resource: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlessfunction
+    Properties:
+      CodeUri: ClaimProcessFunction
+      Handler: com.aarete.pi.claimprocess.lambdafunctions.ClaimOverrideProcess::claimOverrideProcessRequest
+      Role: arn:aws:iam::814719539168:role/aws-a001-use1-00-rol-lamb-shr-wadec01
+      Runtime: java11
+      Architectures:
+        - x86_64
+      MemorySize: 512
+      VpcConfig:
+        SecurityGroupIds:
+          - sg-0f62f40d605c44367
+          - sg-022dcdbde83db8264
+        SubnetIds:
+          - subnet-04d16e9246f32bb1b
+          - subnet-0996c195b132b2343
+          - subnet-084124cc7bf355ba5
+      Environment: # More info about Env Vars: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#environment-object
+        Variables:
+          DB_USER_NAME: postgres
+          DB_PWD: Master123$
+          DB_END_POINT: pi-workbench.cufrohekrz0g.us-east-1.rds.amazonaws.com:5432/postgres
+          DB_PORT: 5432
+          DB_NAME: postgres
+      Events:
+        ClaimLine:
+          Type: Api # More info about API Event Source: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#api
+          Properties:
+            Path: /claim/override
+            Method: post
+
+  DevClaimOverrideResponse:
+    Type: AWS::Serverless::Function # More info about Function Resource: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlessfunction
+    Properties:
+      CodeUri: ClaimProcessFunction
+      Handler: com.aarete.pi.claimprocess.lambdafunctions.ClaimOverrideResponse::handleRequest
+      Role: arn:aws:iam::814719539168:role/aws-a001-use1-00-rol-lamb-shr-wadec01
+      Runtime: java11
+      Architectures:
+        - x86_64
+      MemorySize: 512
+      VpcConfig:
+        SecurityGroupIds:
+          - sg-0f62f40d605c44367
+          - sg-022dcdbde83db8264
+        SubnetIds:
+          - subnet-04d16e9246f32bb1b
+          - subnet-0996c195b132b2343
+          - subnet-084124cc7bf355ba5
+      Environment: # More info about Env Vars: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#environment-object
+        Variables:
+          DB_USER_NAME: postgres
+          DB_PWD: Master123$
+          DB_END_POINT: pi-workbench.cufrohekrz0g.us-east-1.rds.amazonaws.com:5432/postgres
+          DB_PORT: 5432
+          DB_NAME: postgres
+      Events:
+        ClaimOverrideSQSResponse:
+          Type: SQS # More info about API Event Source: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#api
+          Properties:
+            Queue: arn:aws:sqs:us-east-1:814719539168:Dec-WA-Override-claim_recovery
+            BatchSize: 10
+            Enabled: true
+  
+  DevUnProcessedClaimResponse:
+    Type: AWS::Serverless::Function # More info about Function Resource: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlessfunction
+    Properties:
+      CodeUri: ClaimProcessFunction
+      Handler: com.aarete.pi.claimprocess.lambdafunctions.UnProcessedClaimProcess::handleRequest
+      Role: arn:aws:iam::814719539168:role/aws-a001-use1-00-rol-lamb-shr-wadec01
+      Runtime: java11
+      Architectures:
+        - x86_64
+      MemorySize: 512
+      VpcConfig:
+        SecurityGroupIds:
+          - sg-0f62f40d605c44367
+          - sg-022dcdbde83db8264
+        SubnetIds:
+          - subnet-04d16e9246f32bb1b
+          - subnet-0996c195b132b2343
+          - subnet-084124cc7bf355ba5
+      Environment: # More info about Env Vars: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#environment-object
+        Variables:
+          DB_USER_NAME: postgres
+          DB_PWD: Master123$
+          DB_END_POINT: pi-workbench.cufrohekrz0g.us-east-1.rds.amazonaws.com:5432/postgres
+          DB_PORT: 5432
+          DB_NAME: postgres
+      Events:
+        UnProcessedClaimSQSResponse:
+          Type: SQS # More info about API Event Source: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#api
+          Properties:
+            Queue: arn:aws:sqs:us-east-1:814719539168:WA-Dec-Accept-claim-Dead-LQ
+            BatchSize: 10
+            Enabled: true
+
+Outputs:
+  # ServerlessRestApi is an implicit API created out of Events key under Serverless::Function
+  # Find out more about other implicit resources you can reference within SAM
+  # https://github.com/awslabs/serverless-application-model/blob/master/docs/internals/generated_resources.rst#api
+  ClaimDemoApi:
+    Description: "API Gateway endpoint URL for test stage for Hello World function"
+    Value: !Sub "https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/test/workflow/"
+  DevClaimAcceptFunction:
+    Description: "Claim Function ARN"
+    Value: !GetAtt DevClaimAcceptFunction.Arn

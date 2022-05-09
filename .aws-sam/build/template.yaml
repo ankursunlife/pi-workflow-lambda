@@ -1,0 +1,353 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: 'ClaimProcess
+
+  Sample SAM Template for ClaimProcess
+
+  '
+Globals:
+  Function:
+    Timeout: 20
+    Environment:
+      Variables:
+        DB_SM_NAME: arn:aws:secretsmanager:us-east-1:814719539168:secret:RDS-pi-workbench-WutrRL
+        AWS_SM_REGION: us-east-1
+Resources:
+  DevClaimAcceptFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: DevClaimAcceptFunction
+      Handler: com.aarete.pi.claimprocess.lambdafunctions.ClaimProcess::claimProcessRequest
+      Role: arn:aws:iam::814719539168:role/aws-a001-use1-00-rol-lamb-shr-wadec01
+      Runtime: java11
+      Architectures:
+      - x86_64
+      MemorySize: 512
+      VpcConfig:
+        SecurityGroupIds:
+        - sg-0f62f40d605c44367
+        - sg-022dcdbde83db8264
+        SubnetIds:
+        - subnet-04d16e9246f32bb1b
+        - subnet-0996c195b132b2343
+        - subnet-084124cc7bf355ba5
+      Environment:
+        Variables:
+          DB_USER_NAME: postgres
+          DB_PWD: Master123$
+          DB_END_POINT: pi-workbench.cufrohekrz0g.us-east-1.rds.amazonaws.com:5432/postgres
+          DB_PORT: 5432
+          DB_NAME: postgres
+      Events:
+        Claim:
+          Type: Api
+          Properties:
+            Path: /claim/accept
+            Method: post
+    Metadata:
+      SamResourceId: DevClaimAcceptFunction
+  DevClaimLineAcceptFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: DevClaimLineAcceptFunction
+      Handler: com.aarete.pi.claimprocess.lambdafunctions.ClaimLineProcess::claimLineProcessRequest
+      Role: arn:aws:iam::814719539168:role/aws-a001-use1-00-rol-lamb-shr-wadec01
+      Runtime: java11
+      Architectures:
+      - x86_64
+      MemorySize: 512
+      VpcConfig:
+        SecurityGroupIds:
+        - sg-0f62f40d605c44367
+        - sg-022dcdbde83db8264
+        SubnetIds:
+        - subnet-04d16e9246f32bb1b
+        - subnet-0996c195b132b2343
+        - subnet-084124cc7bf355ba5
+      Environment:
+        Variables:
+          DB_USER_NAME: postgres
+          DB_PWD: Master123$
+          DB_END_POINT: pi-workbench.cufrohekrz0g.us-east-1.rds.amazonaws.com:5432/postgres
+          DB_PORT: 5432
+          DB_NAME: postgres
+      Events:
+        ClaimLine:
+          Type: Api
+          Properties:
+            Path: /claimline/accept
+            Method: post
+    Metadata:
+      SamResourceId: DevClaimLineAcceptFunction
+  DevClaimAcceptResponse:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: DevClaimAcceptResponse
+      Handler: com.aarete.pi.claimprocess.lambdafunctions.ClaimAcceptResponse::handleRequest
+      Role: arn:aws:iam::814719539168:role/aws-a001-use1-00-rol-lamb-shr-wadec01
+      Runtime: java11
+      Architectures:
+      - x86_64
+      MemorySize: 512
+      VpcConfig:
+        SecurityGroupIds:
+        - sg-0f62f40d605c44367
+        - sg-022dcdbde83db8264
+        SubnetIds:
+        - subnet-04d16e9246f32bb1b
+        - subnet-0996c195b132b2343
+        - subnet-084124cc7bf355ba5
+      Events:
+        ClaimAcceptSQSResponse:
+          Type: SQS
+          Properties:
+            Queue: arn:aws:sqs:us-east-1:814719539168:Dec-WA-Accept-claim_recovery
+            BatchSize: 10
+            Enabled: true
+    Metadata:
+      SamResourceId: DevClaimAcceptResponse
+  DevClaimRejectResponse:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: DevClaimRejectResponse
+      Handler: com.aarete.pi.claimprocess.lambdafunctions.ClaimRejectResponse::handleRequest
+      Role: arn:aws:iam::814719539168:role/aws-a001-use1-00-rol-lamb-shr-wadec01
+      Runtime: java11
+      Architectures:
+      - x86_64
+      MemorySize: 512
+      VpcConfig:
+        SecurityGroupIds:
+        - sg-0f62f40d605c44367
+        - sg-022dcdbde83db8264
+        SubnetIds:
+        - subnet-04d16e9246f32bb1b
+        - subnet-0996c195b132b2343
+        - subnet-084124cc7bf355ba5
+      Environment:
+        Variables:
+          DB_USER_NAME: postgres
+          DB_PWD: Master123$
+          DB_END_POINT: pi-workbench.cufrohekrz0g.us-east-1.rds.amazonaws.com:5432/postgres
+          DB_PORT: 5432
+          DB_NAME: postgres
+      Events:
+        ClaimRejectSQSResponse:
+          Type: SQS
+          Properties:
+            Queue: arn:aws:sqs:us-east-1:814719539168:Dec-WA-Reject-claim_recovery
+            BatchSize: 10
+            Enabled: true
+    Metadata:
+      SamResourceId: DevClaimRejectResponse
+  DevClaimRejectFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: DevClaimRejectFunction
+      Handler: com.aarete.pi.claimprocess.lambdafunctions.ClaimRejectProcess::claimRejectProcessRequest
+      Role: arn:aws:iam::814719539168:role/aws-a001-use1-00-rol-lamb-shr-wadec01
+      Runtime: java11
+      Architectures:
+      - x86_64
+      MemorySize: 512
+      VpcConfig:
+        SecurityGroupIds:
+        - sg-0f62f40d605c44367
+        - sg-022dcdbde83db8264
+        SubnetIds:
+        - subnet-04d16e9246f32bb1b
+        - subnet-0996c195b132b2343
+        - subnet-084124cc7bf355ba5
+      Environment:
+        Variables:
+          DB_USER_NAME: postgres
+          DB_PWD: Master123$
+          DB_END_POINT: pi-workbench.cufrohekrz0g.us-east-1.rds.amazonaws.com:5432/postgres
+          DB_PORT: 5432
+          DB_NAME: postgres
+      Events:
+        Claim:
+          Type: Api
+          Properties:
+            Path: /claim/reject
+            Method: post
+    Metadata:
+      SamResourceId: DevClaimRejectFunction
+  DevClaimLineRejectFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: DevClaimLineRejectFunction
+      Handler: com.aarete.pi.claimprocess.lambdafunctions.ClaimLineRejectProcess::claimLineRejectProcessRequest
+      Role: arn:aws:iam::814719539168:role/aws-a001-use1-00-rol-lamb-shr-wadec01
+      Runtime: java11
+      Architectures:
+      - x86_64
+      MemorySize: 512
+      VpcConfig:
+        SecurityGroupIds:
+        - sg-0f62f40d605c44367
+        - sg-022dcdbde83db8264
+        SubnetIds:
+        - subnet-04d16e9246f32bb1b
+        - subnet-0996c195b132b2343
+        - subnet-084124cc7bf355ba5
+      Environment:
+        Variables:
+          DB_USER_NAME: postgres
+          DB_PWD: Master123$
+          DB_END_POINT: pi-workbench.cufrohekrz0g.us-east-1.rds.amazonaws.com:5432/postgres
+          DB_PORT: 5432
+          DB_NAME: postgres
+      Events:
+        ClaimLine:
+          Type: Api
+          Properties:
+            Path: /claimline/reject
+            Method: post
+    Metadata:
+      SamResourceId: DevClaimLineRejectFunction
+  DevClaimLineOverrideFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: DevClaimLineOverrideFunction
+      Handler: com.aarete.pi.claimprocess.lambdafunctions.ClaimLineOverrideProcess::claimLineOverrideProcessRequest
+      Role: arn:aws:iam::814719539168:role/aws-a001-use1-00-rol-lamb-shr-wadec01
+      Runtime: java11
+      Architectures:
+      - x86_64
+      MemorySize: 512
+      VpcConfig:
+        SecurityGroupIds:
+        - sg-0f62f40d605c44367
+        - sg-022dcdbde83db8264
+        SubnetIds:
+        - subnet-04d16e9246f32bb1b
+        - subnet-0996c195b132b2343
+        - subnet-084124cc7bf355ba5
+      Environment:
+        Variables:
+          DB_USER_NAME: postgres
+          DB_PWD: Master123$
+          DB_END_POINT: pi-workbench.cufrohekrz0g.us-east-1.rds.amazonaws.com:5432/postgres
+          DB_PORT: 5432
+          DB_NAME: postgres
+      Events:
+        ClaimLine:
+          Type: Api
+          Properties:
+            Path: /claimline/override
+            Method: post
+    Metadata:
+      SamResourceId: DevClaimLineOverrideFunction
+  DevClaimOverrideFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: DevClaimOverrideFunction
+      Handler: com.aarete.pi.claimprocess.lambdafunctions.ClaimOverrideProcess::claimOverrideProcessRequest
+      Role: arn:aws:iam::814719539168:role/aws-a001-use1-00-rol-lamb-shr-wadec01
+      Runtime: java11
+      Architectures:
+      - x86_64
+      MemorySize: 512
+      VpcConfig:
+        SecurityGroupIds:
+        - sg-0f62f40d605c44367
+        - sg-022dcdbde83db8264
+        SubnetIds:
+        - subnet-04d16e9246f32bb1b
+        - subnet-0996c195b132b2343
+        - subnet-084124cc7bf355ba5
+      Environment:
+        Variables:
+          DB_USER_NAME: postgres
+          DB_PWD: Master123$
+          DB_END_POINT: pi-workbench.cufrohekrz0g.us-east-1.rds.amazonaws.com:5432/postgres
+          DB_PORT: 5432
+          DB_NAME: postgres
+      Events:
+        ClaimLine:
+          Type: Api
+          Properties:
+            Path: /claim/override
+            Method: post
+    Metadata:
+      SamResourceId: DevClaimOverrideFunction
+  DevClaimOverrideResponse:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: DevClaimOverrideResponse
+      Handler: com.aarete.pi.claimprocess.lambdafunctions.ClaimOverrideResponse::handleRequest
+      Role: arn:aws:iam::814719539168:role/aws-a001-use1-00-rol-lamb-shr-wadec01
+      Runtime: java11
+      Architectures:
+      - x86_64
+      MemorySize: 512
+      VpcConfig:
+        SecurityGroupIds:
+        - sg-0f62f40d605c44367
+        - sg-022dcdbde83db8264
+        SubnetIds:
+        - subnet-04d16e9246f32bb1b
+        - subnet-0996c195b132b2343
+        - subnet-084124cc7bf355ba5
+      Environment:
+        Variables:
+          DB_USER_NAME: postgres
+          DB_PWD: Master123$
+          DB_END_POINT: pi-workbench.cufrohekrz0g.us-east-1.rds.amazonaws.com:5432/postgres
+          DB_PORT: 5432
+          DB_NAME: postgres
+      Events:
+        ClaimOverrideSQSResponse:
+          Type: SQS
+          Properties:
+            Queue: arn:aws:sqs:us-east-1:814719539168:Dec-WA-Override-claim_recovery
+            BatchSize: 10
+            Enabled: true
+    Metadata:
+      SamResourceId: DevClaimOverrideResponse
+  DevUnProcessedClaimResponse:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: DevUnProcessedClaimResponse
+      Handler: com.aarete.pi.claimprocess.lambdafunctions.UnProcessedClaimProcess::handleRequest
+      Role: arn:aws:iam::814719539168:role/aws-a001-use1-00-rol-lamb-shr-wadec01
+      Runtime: java11
+      Architectures:
+      - x86_64
+      MemorySize: 512
+      VpcConfig:
+        SecurityGroupIds:
+        - sg-0f62f40d605c44367
+        - sg-022dcdbde83db8264
+        SubnetIds:
+        - subnet-04d16e9246f32bb1b
+        - subnet-0996c195b132b2343
+        - subnet-084124cc7bf355ba5
+      Environment:
+        Variables:
+          DB_USER_NAME: postgres
+          DB_PWD: Master123$
+          DB_END_POINT: pi-workbench.cufrohekrz0g.us-east-1.rds.amazonaws.com:5432/postgres
+          DB_PORT: 5432
+          DB_NAME: postgres
+      Events:
+        UnProcessedClaimSQSResponse:
+          Type: SQS
+          Properties:
+            Queue: arn:aws:sqs:us-east-1:814719539168:WA-Dec-Accept-claim-Dead-LQ
+            BatchSize: 10
+            Enabled: true
+    Metadata:
+      SamResourceId: DevUnProcessedClaimResponse
+Outputs:
+  ClaimDemoApi:
+    Description: API Gateway endpoint URL for test stage for Hello World function
+    Value:
+      Fn::Sub: https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/test/workflow/
+  DevClaimAcceptFunction:
+    Description: Claim Function ARN
+    Value:
+      Fn::GetAtt:
+      - DevClaimAcceptFunction
+      - Arn
